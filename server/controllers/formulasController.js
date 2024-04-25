@@ -109,20 +109,20 @@ const generatePDF = () => {
         const width1 = doc.page.width;
         const height1 = doc.page.height;
         doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(29.7*5)).lineTo(width1-margin,margin+(29.7*5)).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(59.4*5)).lineTo(width1-margin,margin+(59.4*5)).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(89.1*5)).lineTo(width1-margin,margin+(89.1*5)).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(118.8*5)).lineTo(width1-margin,margin+(118.8*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(29.7*5-2*5)).lineTo(width1-margin,margin+(29.7*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(59.4*5-2*5)).lineTo(width1-margin,margin+(59.4*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(89.1*5-2*5)).lineTo(width1-margin,margin+(89.1*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(118.8*5-2*5)).lineTo(width1-margin,margin+(118.8*5-2*5)).dash(10, {space: 8}).stroke();
 
 
 
         // doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
         // doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
 
-        doc.moveTo(margin,margin).lineTo(width1-(21*5)-margin,margin).lineTo(width1-(21*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(width1-(42*5)-margin,margin).lineTo(width1-(42*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(width1-(21*3*5)-margin,margin).lineTo(width1-(21*3*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(width1-(21*4*5)-margin,margin).lineTo(width1-(21*4*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(21*5-2*5)-margin,margin).lineTo(width1-(21*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(42*5-2*5)-margin,margin).lineTo(width1-(42*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(21*3*5-2*5)-margin,margin).lineTo(width1-(21*3*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(21*4*5-2*5)-margin,margin).lineTo(width1-(21*4*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
         // doc.moveTo(margin,margin).lineTo(width1-(50*5)-margin,margin).lineTo(width1-(50*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
         // doc.moveTo(margin,margin).lineTo(width1-(60*5)-margin,margin).lineTo(width1-(60*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
 
