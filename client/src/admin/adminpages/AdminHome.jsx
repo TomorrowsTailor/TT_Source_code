@@ -14,9 +14,6 @@ const AdminHome = () => {
         custom-fit clothing, designed to elevate your wardrobe with
         sophistication and individuality.&quot;
       </p>
-      {/* <div>
-        <img src={trouser} />
-      </div> */}
     </>
   );
 };

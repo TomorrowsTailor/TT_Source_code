@@ -8,73 +8,28 @@ import { URL } from "../url";
 
 const Vectorimagecomponent = () => {
   const svgRef = useRef(null);
-  const svgRefFront = useRef(null);
   const frontviewpoints = useSelector((state) => state.trouser.frontviewpoints)
 
-// const uploadPDFToBackend = async (pdfFile) => {
-//   try {
-//     // Create FormData object
-//     const formData = new FormData();
-//     formData.append('pdf', pdfFile, 'tailor_info.pdf');
+const uploadPDF = async (pdfFile) => {
+  try {
+    const formData = new FormData();
+    formData.append('pdf', pdfFile,'output.pdf');
 
-//     // Send PDF file to backend using Axios
-//     const response = await axios.post(URL+'/upload', formData, {
-//       headers: {
-//         'Content-Type': 'multipart/form-data'
-//       }
-//     });
+    const response = await axios.post(URL+'/upload', formData, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-//     console.log('PDF uploaded successfully:', response.data);
-//   } catch (error) {
-//     console.error('Error uploading PDF:', error);
-//   }
-// };
+    if (!response.data) {
+      throw new Error('No data received from server');
+    }
 
-
-
-const handleDownloadImage = () => {
-    const svg = svgRefFront.current;
-
-    // Get the width and height of the SVG
-    const svgWidth = svg.width.baseVal.value;
-    const svgHeight = svg.height.baseVal.value;
-
-    // Create a canvas element
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = svgWidth;
-    canvas.height = svgHeight;
-
-    // Set canvas background color to white
-    ctx.fillStyle = '#ffffff'; // white
-    ctx.fillRect(0, 0, svgWidth, svgHeight);
-
-    // Serialize SVG to XML string
-    const svgData = new XMLSerializer().serializeToString(svg);
-
-    // Create a new Image object
-    const img = new Image();
-
-    // Set the src attribute to the SVG data URL
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-
-    // When the Image has loaded, draw it onto the canvas
-    img.onload = () => {
-        ctx.drawImage(img, -5, -10, svgWidth*10, svgHeight*10);
-
-        // Convert canvas to data URL
-        const dataUrl = canvas.toDataURL('image/png');
-
-        // Create a temporary link element
-        const link = document.createElement('a');
-
-        // Set the download attribute and href to the data URL
-        link.download = 'image.png';
-        link.href = dataUrl;
-
-        // Trigger the download
-        link.click();
-    };
+    console.log('PDF uploaded successfully:', response.data);
+  } catch (error) {
+    console.error('Error uploading PDF:', error);
+  }
 };
 
 
@@ -84,62 +39,37 @@ const getpdf = async () => {
       URL + '/download-pdf',
       {
         withCredentials: true,
-        responseType: 'blob', // This is important to receive binary data
+        responseType: 'blob', 
         headers: {
-          Accept: 'application/pdf', // Specify that you expect a PDF file
+          Accept: 'application/pdf', 
         },
       }
     );
-
     if (!response.data) {
       throw new Error('No data received from server');
     }
-
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', 'output.pdf');
     document.body.appendChild(link);
     link.click();
+    await uploadPDF(response.data);
   } catch (error) {
     console.error('Error downloading PDF:', error);
   }
 };
 
-
-
-  const pairs = [
-    [10,40],
-    [40,6],
-    [6,9],
-    [9, 15],
-    [15, 14],
-    [14, 3],
-    [3, 12],
-    [12, 13],
-    [13, 8],
-    [8, 11],
-    [11, 10],
-    [30,30],
-    [32,32],
-    [33,33],
-    [6,6],
-    [8,8],
-    [40,40],
-    [38,38],
-    [13,13],
-    [12,12],
-    [15,15],
-    [14,15],
-    [8,13],
-  ];
+const calculateDistance=(x1, y1, x2, y2)=> {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+  const pairs = [[10,40],[40,6],[6,9],[9, 15],[15, 14],[14, 3],[3, 12],[12, 13],[13, 8],[8, 11],[11, 10],[30,30],[32,32],[33,33],[6,6],[8,8],[40,40],[38,38],[13,13],[12,12],[15,15],[14,15],[8,13],];
   const backpairs=[[21,22],[22,25],[25,27],[27,26],[26,28],[28,29],[24,29],[19,24],[19,21],[31,31],[34,34],[35,35],[36,36],[37,37]]
   const gridpairs=[[7,18],[18,17],[18,0],[0,22],[0,2],[2,25],[2,17],[17,6],[6,7],[17,16],[16,1],[1,2],[16,5],[5,23],[23,24],[24,29],[29,15],[15,4],[5,15],[4,1],[4,27],[4,3],[3,26],[3,28]]
   const backviewpoints = useSelector((state) => state.trouser.backviewpoints);
   const gridviewpoints = useSelector((state) => state.trouser.gridviewpoints);
-
-
-
   const generateFrontview = () => {
     const lines = [];
     for (let i = 0; i < pairs.length; i++) {
@@ -150,6 +80,8 @@ const getpdf = async () => {
       if (u===6 && v===9) {
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
+        const wide=calculateDistance(x1,y1,x2,y2);
+        console.log(wide,"wide")
         const d = `M${x1} ${y1} A9 6, 0, 0 0, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" strokeDasharray="4,1"/> 
@@ -157,14 +89,18 @@ const getpdf = async () => {
       }else if(u===8 && v===11){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1} A24 48, 0, 0 1, ${x2} ${y2}`;
+        const wide=calculateDistance(x1,y1,x2,y2);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1} A${wide} ${wide*2}, 0, 0 1, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" strokeDasharray="4,1"/> 
         );
       }else if(u===9 && v===15){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1} A60 55, 0, 0 0, ${x2} ${y2}`;
+        const wide=calculateDistance(x1,y1,x2,y2);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1} A${wide} ${wide*1.75}, 0, 0 0, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" strokeDasharray="4,1"/> 
         );
@@ -218,8 +154,6 @@ const getpdf = async () => {
     }
     return lines;
   };
-
-
   const generateFront1view = () => {
     const lines = [];
     for (let i = 0; i < pairs.length; i++) {
@@ -230,6 +164,8 @@ const getpdf = async () => {
       if (u===6 && v===9) {
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
         const d = `M${x1} ${y1+110} A9 6, 0, 0 0, ${x2} ${y2+110}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.503" fill="none"/> 
@@ -237,7 +173,9 @@ const getpdf = async () => {
       }else if(u===8 && v===11){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1+110} A24 48, 0, 0 1, ${x2} ${y2+110}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1+110} A${wide} ${wide*2}, 0, 0 1, ${x2} ${y2+110}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none"/> 
         );
@@ -270,7 +208,9 @@ const getpdf = async () => {
       else if(u===9 && v===15){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1+110} A60 55, 0, 0 0, ${x2} ${y2+110}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1+110} A${wide} ${wide*1.75}, 0, 0 0, ${x2} ${y2+110}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none"/> 
         );
@@ -296,7 +236,8 @@ const getpdf = async () => {
         lines.push(
               <circle cx={x1} cy={y1+110} r={0.6} style={pointStyle}/>
         )
-      }else if(u===33 && v===33){
+      }
+      else if(u===33 && v===33){
         const { x: x1, y: y1 } = point1;
 
 
@@ -306,7 +247,8 @@ const getpdf = async () => {
         lines.push(
               <circle cx={x1} cy={y1+110} r={0.6} style={pointStyle}/>
         )
-      }else if(u===40 && v===40){
+      }
+      else if(u===40 && v===40){
         const { x: x1, y: y1 } = point1;
         // const { x: x2, y: y2 } = point2;
         // console.log(x2, y2);
@@ -334,10 +276,6 @@ const getpdf = async () => {
       }
       else if(u===13 && v===13){
         const { x: x1, y: y1 } = point1;
-        // const { x: x2, y: y2 } = point2;
-        // console.log(x2, y2);
-        // const size = 1.5;
-
         const pointStyle = {
           fill: 'magenta', 
         };
@@ -346,10 +284,6 @@ const getpdf = async () => {
         )
       }else if(u===15 && v===15){
         const { x: x1, y: y1 } = point1;
-        // const { x: x2, y: y2 } = point2;
-        // console.log(x2, y2);
-        // const size = 1.5;
-
         const pointStyle = {
           fill: 'magenta', 
         };
@@ -398,7 +332,6 @@ const getpdf = async () => {
     }
     return lines;
   };
-
   const generateBackview = () => {
     const lines = [];
     for (let i = 0; i < backpairs.length; i++) {
@@ -408,6 +341,8 @@ const getpdf = async () => {
       if (u===19 && v===24) {
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
         const d = `M${x1} ${y1} A9 16, 0, 0 0, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none"/> 
@@ -415,14 +350,18 @@ const getpdf = async () => {
       }else if(u===24 && v===29){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1} A50 125, 0, 0 0, ${x2} ${y2}`;
+        const wide=calculateDistance(x1,y1,x2,y2);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1} A${wide} ${wide*2.7}, 0, 0 0, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" /> 
         );
       }else if(u===22 && v===25){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1} A65 80 , 0, 0 0, ${x2} ${y2}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1} A${wide} ${wide*2} , 0, 0 0, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" /> 
         );
@@ -436,7 +375,9 @@ const getpdf = async () => {
       }else if(u===26 && v===28){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1} ${y1} A10 1 , 0, 0 0, ${x2} ${y2}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1} ${y1} A${wide*2} ${wide*1} , 0, 0 0, ${x2} ${y2}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" /> 
         );
@@ -519,7 +460,6 @@ const getpdf = async () => {
     }
     return lines;
   };
-
   const generateBack1view = () => {
     const lines = [];
     for (let i = 0; i < backpairs.length; i++) {
@@ -536,14 +476,18 @@ const getpdf = async () => {
       }else if(u===24 && v===29){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1+55} ${y1+110} A50 125, 0, 0 0, ${x2+55} ${y2+110}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1+55} ${y1+110} A${wide} ${wide*2.7}, 0, 0 0, ${x2+55} ${y2+110}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" /> 
         );
       }else if(u===22 && v===25){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1+55} ${y1+110} A65 80 , 0, 0 0, ${x2+55} ${y2+110}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1+55} ${y1+110} A${wide} ${wide*2} , 0, 0 0, ${x2+55} ${y2+110}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" /> 
         );
@@ -557,7 +501,9 @@ const getpdf = async () => {
       }else if(u===26 && v===28){
         const { x: x1, y: y1 } = point1;
         const { x: x2, y: y2 } = point2;
-        const d = `M${x1+55} ${y1+110} A10 1 , 0, 0 0, ${x2+55} ${y2+110}`;
+        const wide=calculateDistance(x1,y1+110,x2,y2+110);
+        console.log(wide,"wide")
+        const d = `M${x1+55} ${y1+110} A${wide*2} ${wide*1} , 0, 0 0, ${x2+55} ${y2+110}`;
         lines.push(
           <path d={d} stroke="Black" strokeWidth="0.505" fill="none" /> 
         );
@@ -640,7 +586,6 @@ const getpdf = async () => {
     }
     return lines;
   };
-
   const generateGridview = () => {
     const lines = [];
     for (let i = 0; i < gridpairs.length; i++) {
@@ -659,9 +604,6 @@ const getpdf = async () => {
     }
     return lines;
   };
-
-
-
 return (
   <>
   <Navbar/>
@@ -714,11 +656,8 @@ return (
             <polyline shapeRendering="crispEdges" points="-37.3632, -110.0803 -37.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-38.3632, -110.0803 -38.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-39.3632, -110.0803 -39.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
-
-
             <polyline shapeRendering="crispEdges" points="-0.3632, -110.0803 -0.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="0.3632, -110.0803 0.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
-
             <polyline shapeRendering="crispEdges" points="1.3632, -110.0803 1.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="2.3632, -110.0803 2.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="3.3632, -110.0803 3.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
@@ -875,10 +814,6 @@ return (
             <polyline shapeRendering="crispEdges" points="154.3632, -110.0803 154.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="155.3632, -110.0803 155.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="156.3632, -110.0803 156.3632, 119.0011 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
-
-{/* //<polyline shape-rendering="crispEdges" points="-40.3632, 112.0803 156.4795, 112.0803 " stroke-opacity="0.3000" stroke-width="0.1000"></polyline> */}
-{/* <polyline shape-rendering="crispEdges" points="-40.3632, 89.0803 156.4795, 89.0803 " stroke-opacity="0.3000" stroke-width="0.1000"></polyline> */}
-
             {/* horizontal lines */}
             <polyline shapeRendering="crispEdges" points="-40.3632, -1.0803 156.4795, -1.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -2.0803 156.4795, -2.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
@@ -990,9 +925,7 @@ return (
             <polyline shapeRendering="crispEdges" points="-40.3632, -108.0803 156.4795, -108.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -109.0803 156.4795, -109.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -110.0803 156.4795, -110.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
-
             <polyline shapeRendering="crispEdges" points="-40.3632, 0.0803 156.4795, 0.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
-
             <polyline shapeRendering="crispEdges" points="-40.3632, 1.0803 156.4795, 1.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 2.0803 156.4795, 2.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 3.0803 156.4795, 3.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
@@ -1112,15 +1045,12 @@ return (
             <polyline shapeRendering="crispEdges" points="-40.3632, 117.0803 156.4795, 117.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 118.0803 156.4795, 118.0803 " strokeOpacity="0.3000" strokeWidth="0.1000"></polyline>
 
-
             {/* dark-vertical lines */}
             <polyline shapeRendering="crispEdges" points="-10.3632, -110.0803 -10.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-20.3632, -110.0803 -20.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-30.3632, -110.0803 -30.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -110.0803 -40.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-
             <polyline shapeRendering="crispEdges" points="0.3632, -110.0803 0.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-
             <polyline shapeRendering="crispEdges" points="10.3632, -110.0803 10.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="20.3632, -110.0803 20.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="30.3632, -110.0803 30.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
@@ -1136,7 +1066,6 @@ return (
             <polyline shapeRendering="crispEdges" points="130.3632, -110.0803 130.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="140.3632, -110.0803 140.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="150.3632, -110.0803 150.3632, 119.0011 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-
             {/* dark-horizontallines */}
             <polyline shapeRendering="crispEdges" points="-40.3632, -10.0803 156.4795, -10.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -20.0803 156.4795, -20.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
@@ -1149,10 +1078,7 @@ return (
             <polyline shapeRendering="crispEdges" points="-40.3632, -90.0803 156.4795, -90.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -100.0803 156.4795, -100.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, -110.0803 156.4795, -110.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-
             <polyline shapeRendering="crispEdges" points="-40.3632, 0.0803 156.4795, 0.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-
-
             <polyline shapeRendering="crispEdges" points="-40.3632, 10.0803 156.4795, 10.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 20.0803 156.4795, 20.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 30.0803 156.4795, 30.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
@@ -1163,47 +1089,13 @@ return (
             <polyline shapeRendering="crispEdges" points="-40.3632, 80.0803 156.4795, 80.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 90.0803 156.4795, 90.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
             <polyline shapeRendering="crispEdges" points="-40.3632, 100.0803 156.4795, 100.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-            <polyline shapeRendering="crispEdges" points="-40.3632, 110.0803 156.4795, 110.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>
-            {/* <polyline shapeRendering="auto" points="46.6430, 61.7346 47.1430, 61.7345 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="68.7836, 61.7346 68.2836, 61.7345 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="44.1686, 23.0242 44.6680, 23.0487 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="68.8602, 23.0242 68.3602, 23.0242 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="67.8532, 2.1076 67.8773, 2.6070 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="46.6545, 113.3712 47.1545, 113.3712 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="68.7720, 113.3712 68.2720, 113.3712 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="69.8429, 12.2799 69.3435, 12.3040 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="67.8532, 2.1076 68.8425, 22.6578 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="69.3483, 2.0048 70.3255, 22.3049 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="35.2732, 65.2393 34.7732, 65.2357 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="9.1326, 65.2393 9.6326, 65.2392 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="41.3854, 26.9652 40.8856, 26.9530 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="13.3092, 22.0467 13.7966, 22.1581 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="9.1441, 116.8759 9.6441, 116.8759 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="35.2616, 116.8759 34.7616, 116.8759 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="19.0151, 1.5481 18.9307, 2.0409 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="15.7541, 11.7223 16.2415, 11.8336 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="15.5245, 12.6956 16.0120, 12.8069 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="31.0317, 3.6962 26.7723, 19.2903 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="117.2018, 5.6179 117.2018, 5.1179 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="115.2018, 5.6179 115.2018, 5.1179 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="117.2018, 1.6179 117.2018, 2.1179 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="115.2018, 1.6179 115.2018, 2.1179 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="77.0492, 5.6179 77.0492, 1.6179 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="80.1574, 19.1854 79.6574, 19.1854 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="75.1589, 19.1854 75.6589, 19.1854 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-            {/* <polyline shapeRendering="auto" points="77.6582, 8.8368 77.6582, 29.4724 " strokeOpacity="1.0000" strokeWidth="0.2500"></polyline> */}
-          
-         
-            
+            <polyline shapeRendering="crispEdges" points="-40.3632, 110.0803 156.4795, 110.0803 " strokeOpacity="1.0000" strokeWidth="0.1000"></polyline>    
           </g>
-         
         </svg>
       </div>
     </div>
-    {/* Button to trigger download */}
     <div className="grid-d pt-20">
       <button className="download-button" onClick={getpdf}>Download PDF2</button>
-      <button className="download-button" onClick={handleDownloadImage}>Download Image</button>
     </div>
 
   

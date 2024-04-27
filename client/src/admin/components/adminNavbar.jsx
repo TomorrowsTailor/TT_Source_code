@@ -6,13 +6,6 @@ import AdminMenu from "../components/adminMenu";
 import { UserContext } from "../../context/UserContext";
 import "../../styles/style.css";
 const Navbar = () => {
-  //   const [menu, setMenu] = useState(false);
-
-  // console.log(prompt)
-
-  //   const showMenu = () => {
-  //     setMenu(!menu);
-  //   };
 
   const { user } = useContext(UserContext);
 

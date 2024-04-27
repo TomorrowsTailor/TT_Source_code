@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv").config();
@@ -11,11 +10,7 @@ const userRoute = require("./routes/userRoute");
 const multer = require('multer');
 const path = require('path');
 const {generatePDF}=require("./controllers/formulasController")
-
-
-
-
-
+const fs = require('fs');
 
 
 
@@ -52,15 +47,6 @@ app.use("/trouser", formulasRoute);
 //   });
 //
 
-
-
-
-
-
-
-
-
-
 // Set up storage for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -75,23 +61,30 @@ const upload = multer({ storage: storage });
 
 // Endpoint to receive PDF file
 app.post('/upload', upload.single('pdf'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No files were uploaded.');
-  }
-  res.send('File uploaded successfully.');
+  // Generate the PDF
+  generatePDF()
+    .then(pdfBuffer => {
+      fs.writeFileSync('uploads/output.pdf', pdfBuffer);
+
+      res.send('PDF uploaded successfully');
+    })
+    .catch(err => {
+      console.error('Error generating PDF:', err);
+      res.status(500).send('Error generating PDF');
+    });
 });
 
+// Route to handle PDF download
 app.get('/download-pdf', async (req, res) => {
-    try {
-        const pdfBuffer = await generatePDF();
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename="output.pdf"');
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        res.status(500).send('Error generating PDF');
-        ;
-    }
+  try {
+    const pdfBuffer = await generatePDF();
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="output.pdf"');
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).send('Error generating PDF');
+  }
 });
 
 app.listen(PORT, () => {

@@ -6,7 +6,6 @@ const math = require("mathjs");
 const userModel = require("../model/User")
 const jwt = require("jsonwebtoken");
 const PDFDocument = require('pdfkit');
-const fs = require('fs');
 
 
 const filteredPoints = {};
@@ -53,17 +52,14 @@ const TrouserCalculation = asyncHandler(async (req, res) => {
     // Calculate translation values
     const minX = Math.min(...Object.values(calculatedPoints).map(point => point.x));
     const minY = Math.min(...Object.values(calculatedPoints).map(point => point.y));
-    const translateX = 50 - minX; // Adjust 50 according to your margin requirement
-    const translateY = 50 - minY; // Adjust 50 according to your margin requirement
+    const translateX = 50 - minX; 
+    const translateY = 50 - minY; 
 
     // Translated points
     Object.entries(calculatedPoints).forEach(([key, point]) => {
       const { x, y } = point;
       translatedPoints[key] = { x: x + translateX, y: y + translateY };
     });
-
-    // Output translated points
-    console.log("translated points",translatedPoints);
 
     res.json({
       success: true,
@@ -90,10 +86,7 @@ const thirdSplitpairs=[[40,6],[6,9],[9,9],[40,40]];
 const fourthSplitpairs=[[8,8],[8,13]]
 const fifthSplitpairs=[[13,13],[8,13]]
 const sixthSplitpairs=[[9,15],[15,14]]
-
-  const pairs = [
-    [10, 11],[10,6],[6,9],[9, 15],[15, 14],[14, 12],[13,12],[8,13],[11,8],[30,30],[32,32],[33,33],[6,6],[8,8],[40,40],[38,38],[13,13],[12,12],[15,15],
-  ];
+const pairs = [[10, 11],[10,6],[6,9],[9, 15],[15, 14],[14, 12],[13,12],[8,13],[11,8],[30,30],[32,32],[33,33],[6,6],[8,8],[40,40],[38,38],[13,13],[12,12],[15,15],];
 
 const generatePDF = () => {
     return new Promise((resolve, reject) => {
@@ -104,38 +97,45 @@ const generatePDF = () => {
         doc.on('end', () => resolve(Buffer.concat(buffers)));
         doc.on('error', err => reject(err));
         doc.fontSize(12).font('Helvetica');
-        doc.lineWidth(2); 
-        const margin=2*28.35
+        doc.lineWidth(2);
+        const margin2=2*28.35;
         const width1 = doc.page.width;
         const height1 = doc.page.height;
+        doc.moveTo(margin2,margin2).lineTo(width1-margin2,margin2).lineTo(width1-margin2,height1-margin2).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin2,margin2).lineTo(margin2,height1-margin2).lineTo(width1-margin2,height1-margin2).dash(10, {space: 8}).stroke();
+        doc.undash();
+
+
+        doc.addPage({size:"A4",layout:"portrait"});
+        doc.lineWidth(2); 
+        const margin=0
+        // horizontal-lines
         doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(29.7*5-2*5)).lineTo(width1-margin,margin+(29.7*5-2*5)).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(59.4*5-2*5)).lineTo(width1-margin,margin+(59.4*5-2*5)).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(89.1*5-2*5)).lineTo(width1-margin,margin+(89.1*5-2*5)).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin+(118.8*5-2*5)).lineTo(width1-margin,margin+(118.8*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(25*5-2*5)).lineTo(width1-margin,margin+(25*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(50*5-2*5)).lineTo(width1-margin,margin+(50*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(75*5-2*5)).lineTo(width1-margin,margin+(75*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(100*5-2*5)).lineTo(width1-margin,margin+(100*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(125*5-2*5)).lineTo(width1-margin,margin+(125*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(150*5-2*5)).lineTo(width1-margin,margin+(150*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(175*5-2*5)).lineTo(width1-margin,margin+(175*5-2*5)).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin+(200*5-2*5)).lineTo(width1-margin,margin+(200*5-2*5)).dash(10, {space: 8}).stroke();
 
 
-
-        // doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        // doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-
-        doc.moveTo(margin,margin).lineTo(width1-(21*5-2*5)-margin,margin).lineTo(width1-(21*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(width1-(42*5-2*5)-margin,margin).lineTo(width1-(42*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(width1-(21*3*5-2*5)-margin,margin).lineTo(width1-(21*3*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(width1-(21*4*5-2*5)-margin,margin).lineTo(width1-(21*4*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        // doc.moveTo(margin,margin).lineTo(width1-(50*5)-margin,margin).lineTo(width1-(50*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-        // doc.moveTo(margin,margin).lineTo(width1-(60*5)-margin,margin).lineTo(width1-(60*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
-
-
-
+        // vertical-lines
+        doc.moveTo(margin,margin).lineTo(width1-(15*5-2*5)-margin,margin).lineTo(width1-(15*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(30*5-2*5)-margin,margin).lineTo(width1-(30*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(15*3*5-2*5)-margin,margin).lineTo(width1-(15*3*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(15*4*5-2*5)-margin,margin).lineTo(width1-(15*4*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(15*5*5-2*5)-margin,margin).lineTo(width1-(15*5*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(15*6*5-2*5)-margin,margin).lineTo(width1-(15*6*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(15*7*5-2*5)-margin,margin).lineTo(width1-(15*7*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin,margin).lineTo(width1-(15*8*5-2*5)-margin,margin).lineTo(width1-(15*8*5-2*5)-margin,height1-margin).dash(10, {space: 8}).stroke();
 
         doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-
         doc.undash();
-        const coordinate=210;
+        const coordinate=65;
         const mulref=5;
-        // referencevector:
-        // doc.moveTo(-10,-20).lineTo(0,-26).stroke()
+        // referencevector-front-view:
         for (let i = 0; i < pairs.length; i++) {
         const [u, v] = pairs[i];
         const point1 = filteredPoints[u];
@@ -164,7 +164,7 @@ const generatePDF = () => {
         const {x:x4,y:y4}=filteredPoints[10]
         const dis1=calculateDistance(x4,y4,x1,y1); //10-6
         const {x:x3, y:y3} = filteredPoints[5]
-
+        const {x:x5, y:y5} = filteredPoints[33]
         const dis2=calculateDistance(x3,y3,x4,y4); //10-5
         const dis=calculateDistance(x3,y3,x2,y2); //5-9
         const distance=calculateDistance(x1,y1,x2,y2); //6-9
@@ -172,7 +172,7 @@ const generatePDF = () => {
         const h2=y2+coordinate+dis2*mulref-dis2+distance*mulref+distance;
         const l1=x1+coordinate;
         const h1=y1+coordinate+dis1*mulref+dis1;
-        const midx=((l1+l2)/2)+(2.121320344*mulref)
+        const midx=(l1+l2)/2+(2.121320344*mulref);
         const midy=(h1+h2)/2;
         doc.moveTo(l1,h1).quadraticCurveTo(midx,midy,l2,h2).stroke();
         console.log(`${u}, ${v} distance converted is`,calculateDistance(l1,h1,l2,h2));       
@@ -244,7 +244,6 @@ const generatePDF = () => {
       }else if (u===15 && v===14) {
         const {x:x3,y:y3}=filteredPoints[10];
         const dis3=(x3-x1)*mulref
-
         const dis=calculateDistance(x1,y1,x3,y3);
         const distance=calculateDistance(x1,y1,x2,y2);
         const l2=x2+coordinate; 
@@ -275,15 +274,15 @@ const generatePDF = () => {
         }
 
 
-
+        const margin1=2*28.35;
         doc.addPage({size:"A4",layout:"landscape"});
         doc.lineWidth(2);
         const width = doc.page.width;
         const height = doc.page.height;
         //Width: 841.89 Height: 595.28
         // console.log("Width:", width, "Height:", height);
-        doc.moveTo(margin,margin).lineTo(width-margin,margin).lineTo(width-margin,height-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height-margin).lineTo(width-margin,height-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width-margin1,margin1).lineTo(width-margin1,height-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height-margin1).lineTo(width-margin1,height-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
 
         const mul=28.35;
@@ -345,8 +344,8 @@ const generatePDF = () => {
         
         doc.addPage({size:"A4",layout:"portrait"});
         doc.lineWidth(2);
-        doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width1-margin1,margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height1-margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
 
         // frontview-2nd split:
@@ -371,8 +370,8 @@ const generatePDF = () => {
         doc.addPage({size:"A4",layout:"portrait"});
         doc.lineWidth(2);
 
-        doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width1-margin1,margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height1-margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
 
 
@@ -410,8 +409,8 @@ const generatePDF = () => {
         }
         doc.addPage({size:"A4",layout:"portrait"});
         doc.lineWidth(2);
-        doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width1-margin1,margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height1-margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
 
         // frontview-4th split:
@@ -444,8 +443,8 @@ const generatePDF = () => {
         }
         doc.addPage({size:"A4",layout:"portrait"});
         doc.lineWidth(2);
-        doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width1-margin1,margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height1-margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
         // frontview-5th split:
         for (let i = 0; i < fifthSplitpairs.length; i++) {
@@ -477,8 +476,8 @@ const generatePDF = () => {
         }
         doc.addPage({size:"A4",layout:"portrait"});
         doc.lineWidth(2);
-        doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width1-margin1,margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height1-margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
         // frontview-6th split:
         for (let i = 0; i < sixthSplitpairs.length; i++) {
@@ -510,8 +509,8 @@ const generatePDF = () => {
         }
         doc.addPage({size:"A4",layout:"portrait"});
         doc.lineWidth(2);
-        doc.moveTo(margin,margin).lineTo(width1-margin,margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
-        doc.moveTo(margin,margin).lineTo(margin,height1-margin).lineTo(width1-margin,height1-margin).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(width1-margin1,margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
+        doc.moveTo(margin1,margin1).lineTo(margin1,height1-margin1).lineTo(width1-margin1,height1-margin1).dash(10, {space: 8}).stroke();
         doc.undash();
         // frontview-7th split:
         for (let i = 0; i < sixthSplitpairs.length; i++) {
@@ -545,9 +544,6 @@ const generatePDF = () => {
     });
 };
 
-
-
-
 const FetchFormulaeController = asyncHandler(async (req, res) => {
   const token = req.cookies.token;
   jwt.verify(token, process.env.JWT_SECRET, {}, async (err, data) => {
@@ -569,7 +565,6 @@ const FetchFormulaeController = asyncHandler(async (req, res) => {
     }
   });
 });
-
 // Update Formula Controller
 const UpdateFormulaController = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -604,9 +599,6 @@ const UpdateFormulaController = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "An error occurred" });
   }
 });
-
-
-
 // Delete Formula Controller
 const DeleteFormulaController = asyncHandler(async (req, res) => {
   const { id } = req.params;

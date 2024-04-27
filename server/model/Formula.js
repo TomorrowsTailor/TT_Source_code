@@ -1,13 +1,10 @@
-// Import necessary modules
 const mongoose = require("mongoose");
 
-// Define schema for formula document
 const formulaSchema = new mongoose.Schema({
   key: String,
   expression: String,
 });
 
-// Create a Mongoose model based on the schema
 const Formula = mongoose.model("Formula", formulaSchema);
 
 const sampleFormulas = [
@@ -165,12 +162,8 @@ const sampleFormulas = [
     expression: (A, B, C, D, E, F) => ({ x: -(F / 2) - 0.5 + 6 , y: -E }),
   }, 
   { key: "40", expression: (A, B, C, D, E, F) => ({ x: -(B / 12) - (3/2), y: -C/2 }) },
-  //  { key: "10", expression: (A, B, C, D, E, F) => ({ x: -(B / 12) - 1, y: 0 }) },
-  //  { key: "6", expression: (A, B, C, D, E, F) => ({ x: -(B / 12) - 2, y: -C }) },
+
 ];
-
-
-// Make these corrections to your expressions, and the syntax error should be resolved. After modifying the expressions, try recalculating the points. If you encounter any further issues, please let me know!
 // // Insert sample formulas into the database
 // Formula.insertMany(sampleFormulas)
 //   .then(() => console.log("Sample formulas inserted successfully"))

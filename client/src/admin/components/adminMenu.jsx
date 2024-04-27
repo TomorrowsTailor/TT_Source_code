@@ -60,12 +60,6 @@ const Menu = () => {
           <Link to={"/dashboard"}>Dashboard</Link>
         </h3>
       )}
-        {/* {user && info.role==="admin" && (
-        <h3 className="">
-          <Link to={"/trouser-formulae"}>Edit-Formulae</Link>
-        </h3>
-      )} */}
-
       {user && (
         <h3 onClick={handleLogout} className="logout">
           Logout
